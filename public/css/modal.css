@@ -1,0 +1,50 @@
+
+
+dialog {
+    outline: none;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+      border-radius: 20px;
+      border: none;
+      padding: 0;
+  }
+
+  dialog::backdrop {
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+  }
+
+
+.modal-content {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+.modal-content .close {
+position: absolute;
+top: 20px;
+right: 20px;
+    font-size: 16px;
+    cursor: pointer;
+transition: .3s;
+}
+
+.modal-content .close:hover{
+  font-size: 24px;
+}
+
+.modal-form{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-form__btn{
+  padding: 10px 20px;
+  border-radius: 5px;
+}
