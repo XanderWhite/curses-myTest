@@ -93,10 +93,30 @@ class RegisterController extends Controller
         // Используйте Auth класс для входа
         Auth::login($user); // Войти в систему сразу после регистрации
 
-        return response()->json([
-            'message' => 'Регистрация прошла успешно!',
-            'user' => $user,
+        // return response()->json([
+        //     'message' => 'Регистрация прошла успешно!',
+        //     'user' => $user,
+        // ]);
+        return redirect()->intended($this->redirectTo);
+    }
+
+    public function checkData(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
         ]);
-        // return redirect()->intended($this->redirectTo);
+
+        $result = 'ok';
+
+        if (User::where('email', $request->email)->first())
+            $result = 'Данная почта уже зарегистрированна';
+        else if (strlen($request->name) < 3)
+            $result =  'Логин должен быть не менее 3х знаков';
+        else if (strlen($request->password) < 8)
+            $result = 'Пароль должен быть не менее 8 знаков';
+        else if ($request->password != $request->password_confirmation)
+            $result = 'Пароли не совпадают';
+
+        return response()->json(['result' => $result]);
     }
 }

@@ -46,15 +46,17 @@
             </div>
 
             <div class="form-group">
-                <label for="avatar">Добавить аватар:</label>
-                <input type="file" class="form-control-file" id="avatar" name="avatar" accept="image/*">
-                <br>
-                @if (auth()->user()->avatar)
+                <label for="avatar" class="avatar-label">Изменить аватар:
+                    @if (auth()->user()->avatar)
                     <img class="profile-avatar" src="data:image/jpeg;base64,{{ base64_encode(auth()->user()->avatar) }}"
                         alt="Avatar" />
                 @else
                     <img class="profile-avatar" src="images/avatar-default.png" alt="Default Avatar"/>
                 @endif
+                </label>
+                <input style="display: none" type="file"  class="form-control-file" id="avatar" name="avatar" accept="image/*">
+                <br>
+
             </div>
 
             @if (auth()->user()->avatar)

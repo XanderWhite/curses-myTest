@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -19,22 +21,33 @@ class LoginController extends Controller
     {
         // return redirect()->intended($this->redirectTo);
 
-        // Валидация ввода пользователя
-        $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        // // Валидация ввода пользователя
+        // $this->validate($request, [
+        //     'email' => 'required|email',
+        //     'password' => 'required',
+        // ]);
 
-        // Попытка авторизации
+        // // Попытка авторизации
         if (Auth::attempt($request->only('email', 'password'))) {
             // Успешная авторизация
             return redirect()->intended($this->redirectTo);
         }
+    }
 
-        // Если авторизация не удалась
-        throw ValidationException::withMessages([
-            'email' => ['Неверный логин или пароль.'],
+    public function checkUser(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user && Hash::check($request->password, $user->password)) {
+            return response()->json(['exists' => true]);
+        }
+
+        return response()->json(['exists' => false]);
     }
 
     /*

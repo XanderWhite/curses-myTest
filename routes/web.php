@@ -14,7 +14,11 @@ Route::get('/', function () {
 // Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 // Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/checkUser', [LoginController::class, 'checkUser'])->name('checkUser');
+
 Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/checkData', [RegisterController::class, 'checkData'])->name('checkData');
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 

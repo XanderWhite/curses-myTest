@@ -51,9 +51,26 @@ list-style: none;
     }
 
     .profile-avatar{
-        width: 150px;
-        height: 150px;
+        width: 100px;
+        height: 100px;
         vertical-align: top;
         object-fit: cover;
         border-radius: 50%;
+    }
+
+    .avatar-label{
+        width: max-content;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    #error-reg,
+    #error-login{
+     text-align: center;
+     color: red;
+     font-size: 14px;
+     display: none;
     }

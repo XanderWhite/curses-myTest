@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Courses')</title>
     <link rel="stylesheet" href="{{ asset('css/reset.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -26,20 +27,20 @@
                     <li class="menu__item">
                         <a class="menu__link menu__link_lk" href="{{ route('profile') }}">
                             @if (Auth::user()->avatar)
-                    <img class="menu-avatar" src="data:image/jpeg;base64,{{ base64_encode(Auth::user()->avatar) }}"
-                        alt="Avatar" />
-                @else
-                    <img class="menu-avatar" src="images/avatar-default.png" alt="Default Avatar"/>
-                @endif
-                                    {{ Auth::user()->name }}
-                                </a>
-                            </li>
-                            <li  class="menu__item">
-                                <form class="menu__form" action="{{ route('logout') }}" method="POST" ">
-                            @csrf
-                            <button class="btn" type="submit">Выход</button>
-                            </form>
+                                <img class="menu-avatar"
+                                    src="data:image/jpeg;base64,{{ base64_encode(Auth::user()->avatar) }}" alt="Avatar" />
+                            @else
+                                <img class="menu-avatar" src="images/avatar-default.png" alt="Default Avatar" />
+                            @endif
+                            {{ Auth::user()->name }}
+                        </a>
                     </li>
+                    <li class="menu__item">
+                        <form class="menu__form" action="{{ route('logout') }}" method="POST" ">
+                                    @csrf
+                                    <button class="btn" type="submit">Выход</button>
+                                    </form>
+                            </li>
                 @endguest
             </ul>
         </nav>
@@ -62,21 +63,22 @@
                 @csrf
                 <div>
                     <label for="name">Имя</label>
-                    <input type="text" name="name" id="name" required>
+                    <input type="text" name="name" id="nameReg" required>
                 </div>
                 <div>
                     <label for="email">Email</label>
-                    <input type="email" name="email" id="email" required>
+                    <input type="email" name="email" id="emailReg" required>
                 </div>
                 <div>
                     <label for="password">Пароль</label>
-                    <input type="password" name="password" id="password" required>
+                    <input type="password" name="password" id="passwordReg" required>
                 </div>
                 <div>
                     <label for="password_confirmation">Подтвердите пароль</label>
                     <input type="password" name="password_confirmation" id="password_confirmation" required>
                 </div>
                 <button class="modal-form__btn" type="submit">Зарегистрироваться</button>
+                <p id='error-reg'></p>
             </form>
         </div>
     </dialog>
@@ -86,23 +88,18 @@
         <div class="modal-content">
             <span class="close" id="closeLoginModal">&times;</span>
             <h5>Авторизация</h5>
-            <form class="modal-form" action="{{ route('login') }}" method="POST">
+            <form class="modal-form modal-form_login" action="{{ route('login') }}" method="POST">
                 @csrf
                 <div>
                     <label for="email">Email</label>
-                    <input type="email" name="email" id="email" required value="{{ old('email') }}">
-                    @error('email')
-                    <span style="color: red;">{{ $message }}</span>
-                    @enderror
-                </div>
+                    <input type="email" name="email" id="emailLogin" required value="{{ old('email') }}">
+                                   </div>
                 <div>
                     <label for="password">Пароль</label>
-                    <input type="password" name="password" id="password" required>
-                    @error('password')
-                    <span style="color: red;">{{ $message }}</span>
-                    @enderror
-                </div>
+                    <input type="password" name="password" id="passwordLogin" required>
+                                   </div>
                 <button class="modal-form__btn" type="submit">Войти</button>
+                <p id='error-login'></p>
             </form>
         </div>
     </dialog>
