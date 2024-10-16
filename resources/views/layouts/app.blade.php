@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/reset.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
 </head>
 
 <body>
@@ -47,7 +48,7 @@
     </header>
 
     {{-- Основной контент страницы --}}
-    <main class="container">
+    <main class="main">
         @yield('content')
     </main>
 
@@ -111,6 +112,7 @@
 
     <script src="{{ asset('js/modal.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+    <script src="{{ asset('js/profile.js') }}"></script>
 </body>
 
 </html>

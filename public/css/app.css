@@ -1,3 +1,14 @@
+.main{
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.no-scroll {
+    overflow: hidden;
+    height: 100%; 
+  }
+
 /* ============================= */
 /* Header */
 
@@ -50,13 +61,7 @@ list-style: none;
         border-radius: 50%;
     }
 
-    .profile-avatar{
-        width: 100px;
-        height: 100px;
-        vertical-align: top;
-        object-fit: cover;
-        border-radius: 50%;
-    }
+
 
     .avatar-label{
         width: max-content;
@@ -74,3 +79,5 @@ list-style: none;
      font-size: 14px;
      display: none;
     }
+
+

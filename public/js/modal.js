@@ -14,29 +14,41 @@ let closeRegisterModal = document.getElementById("closeRegisterModal");
 // Открываем модальные окна
 loginBtn.onclick = function() {
     loginModal.showModal();
+    document.body.classList.add('no-scroll');
+
 }
 
 registerBtn.onclick = function() {
     registerModal.showModal();
+    document.body.classList.add('no-scroll');
+
 }
 
 // Закрыть модальное окно авторизации
 closeLoginModal.onclick = function() {
     loginModal.close();
+    document.body.classList.remove('no-scroll');
+
 }
 
 // Закрыть модальное окно регистрации
 closeRegisterModal.onclick = function() {
     registerModal.close();
+    document.body.classList.remove('no-scroll');
+
 }
 
 // Закрыть модальные окна при щелчке на свободной области
 window.addEventListener('click', function(event) {
     if (event.target === loginModal) {
         loginModal.close();
+    document.body.classList.remove('no-scroll');
+
     }
     if (event.target === registerModal) {
         registerModal.close();
+    document.body.classList.remove('no-scroll');
+
     }
 });
 
@@ -45,9 +57,13 @@ window.addEventListener('keydown', function(event) {
     if (event.key === "Escape") {
         if (loginModal.open) {
             loginModal.close();
+    document.body.classList.remove('no-scroll');
+
         }
         if (registerModal.open) {
             registerModal.close();
+    document.body.classList.remove('no-scroll');
+
         }
     }
 });

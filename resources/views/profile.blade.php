@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="container">
-        <h2>Редактирование профиля</h2>
+        <h2 class="profile-title">Редактирование профиля</h2>
 
-        @if ($errors->any())
+        {{-- @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -12,9 +12,9 @@
                     @endforeach
                 </ul>
             </div>
-        @endif
+        @endif --}}
 
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('profile.update') }}" class="profile-form" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -45,7 +45,7 @@
                     minlength="8">
             </div>
 
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label for="avatar" class="avatar-label">Изменить аватар:
                     @if (auth()->user()->avatar)
                     <img class="profile-avatar" src="data:image/jpeg;base64,{{ base64_encode(auth()->user()->avatar) }}"
@@ -56,18 +56,35 @@
                 </label>
                 <input style="display: none" type="file"  class="form-control-file" id="avatar" name="avatar" accept="image/*">
                 <br>
+            </div> --}}
 
+            <div class="form-group">
+                <label for="avatar" class="avatar-label">Изменить аватар:</label>
+                @if (auth()->user()->avatar)
+                    <img class="profile-avatar" id="avatarPreview" src="data:image/jpeg;base64,{{ base64_encode(auth()->user()->avatar) }}" alt="Avatar" />
+                @else
+                    <img class="profile-avatar" id="avatarPreview" src="images/avatar-default.png" alt="Default Avatar"/>
+                @endif
+                <input type="file" class="form-control-file" id="avatar" name="avatar" accept="image/*" onchange="previewAvatar(event)">
             </div>
 
-            @if (auth()->user()->avatar)
+            {{-- @if (auth()->user()->avatar)
                 <form action="{{ route('profile.avatar.delete') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">Удалить аватар</button>
+                </form>
+            @endif --}}
+
+            @if (auth()->user()->avatar)
+                <form id="deleteAvatarForm" action="{{ route('profile.avatar.delete') }}" method="POST" onsubmit="return confirmDeleteAvatar()">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Удалить аватар</button>
                 </form>
             @endif
 
-            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            <button type="submit" class="btn profile-btn" disabled>Сохранить изменения</button>
         </form>
     </div>
 @endsection
