@@ -70,21 +70,22 @@ class ParseController extends Controller
 
                 //--------------------------------------
                 // foreach( $subCategories as  $subCategory){
-                    foreach ($subCategories as &$subCategory) {
-                        // Получаем HTML-контент для каждой подкатегории
-                        $subCategoryResponse = $client->get($subCategory['link']);
-                        $subCategoryHtml = $subCategoryResponse->getBody()->getContents();
-                        $subCategoryCrawler = new Crawler($subCategoryHtml);
+                    // foreach ($subCategories as &$subCategory) {
+                    //     return
+                    //     // Получаем HTML-контент для каждой подкатегории
+                    //     $subCategoryResponse = $client->get($subCategory['link']);
+                    //     $subCategoryHtml = $subCategoryResponse->getBody()->getContents();
+                    //     $subCategoryCrawler = new Crawler($subCategoryHtml);
 
-                        // Получаем курсы для текущей подкатегории
-                        // $courses = $this->getCourses($subCategoryCrawler, $baseUrl);
+                    //     // Получаем курсы для текущей подкатегории
+                    //     // $courses = $this->getCourses($subCategoryCrawler, $baseUrl);
 
-                        // Удаляем null значения и переиндексируем массив
-                        // $courses = array_values(array_filter($courses));
+                    //     // Удаляем null значения и переиндексируем массив
+                    //     // $courses = array_values(array_filter($courses));
 
-                        // Добавляем курсы в текущую подкатегорию
-                        $subCategory['courses'] = null;
-                    }
+                    //     // Добавляем курсы в текущую подкатегорию
+                    //     $subCategory['courses'] = null;
+                    // }
 
 
 
