@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('schools', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('description');
+            $table->string('name')->unique();
+            $table->text('description');
+            $table->string('link');
             $table->timestamps();
         });
     }
