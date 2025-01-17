@@ -112,6 +112,9 @@ class ParseController extends Controller
         return response()->json($result);
     }
 
+     /**
+     * Добавление первой школы для заглушки в курсах
+     */
     public function insertFirstSchool(){
 $school = new School();
 $school->name = 'Яндекс Практикум';
@@ -126,10 +129,10 @@ echo 'school is saved';
         $result = [];
 
 
-        $categoryId = 1; // ID категории, для которой нужно получить подкатегории
-        //добавленные id:
+        $categoryId = 0; // ID категории, для которой нужно получить подкатегории
+        //добавленные id: 1 2 3 4 5 6 7 8 9 10
 
-        
+
         $category = Category::find($categoryId);
 
         if ($category) {
@@ -148,18 +151,18 @@ echo 'school is saved';
                     // Удаляем null значения и переиндексируем массив
                     $courses = array_values(array_filter($courses));
 
-                    foreach ($courses as $course) {
-                        // Добавляем данные в таблицу курсы
-                        Course::create([
-                            'subcategory_id' => $subcategory->id,
-                            'school_id' => 1, //использую значение 1 в качестве заглушки, предварительно создав школу в insertFirstSchool();
-                            'name' => $course['title'],
-                            'description' => $course['text'],
-                            'price' => $course['price'],
-                            'link' => $course['link'],
-                            'link-more' => $course['more'],
-                       ]);
-                    }
+                    // foreach ($courses as $course) {
+                    //     // Добавляем данные в таблицу курсы
+                    //     Course::create([
+                    //         'subcategory_id' => $subcategory->id,
+                    //         'school_id' => 1, //использую значение 1 в качестве заглушки, предварительно создав школу в insertFirstSchool();
+                    //         'name' => $course['title'],
+                    //         'description' => $course['text'],
+                    //         'price' => $course['price'],
+                    //         'link' => $course['link'],
+                    //         'link-more' => $course['more'],
+                    //    ]);
+                    // }
 
                     $result[] = [
                         'subcategory' => $subcategory->name,
@@ -184,109 +187,12 @@ echo 'school is saved';
     }
 
 
-
-
-
-
-
-    public function parseHtml()
-    {
-        // Базовый URL
-        $baseUrl = 'https://obrazoval.ru';
-
-        // URL для парсинга
-        $url = $baseUrl;
-
-        // Создаем HTTP-клиент
-        $client = new Client();
-        $response = $client->get($url);
-
-        // Получаем HTML-код страницы
-        $html = $response->getBody()->getContents();
-
-        // Создаем объект Crawler для парсинга
-        $crawler = new Crawler($html);
-
-        // Извлекаем основные категории
-        $mainCategories = $crawler->filter('.directions__list-item')->each(function (Crawler $node) {
-            if ($node->filter('.directions__title')->count() > 0 && $node->filter('.directions__link')->count() > 0) {
-                return [
-                    'name' => $node->filter('.directions__title')->text(),
-                    'link' => $node->filter('.directions__link')->attr('href')
-                ];
-            }
-            return null; // Возвращаем null, если элемент не найден
-        });
-
-        // Удаляем null значения
-        $mainCategories = array_filter($mainCategories);
-
-        // Извлекаем подкатегории и группируем ссылки
-        $result = [];
-
-        foreach ($mainCategories as $mainCategory) {
-            try {
-                // $mainCategory = $mainCategories[0];
-
-
-                $subCategories = $crawler->filter('.direction-info__link')->each(function (Crawler $node) use ($baseUrl, $mainCategory) {
-
-                    if ($node->count() > 0) {
-                        $link = $node->attr('href');
-                        // Проверяем, что ссылка подкатегории начинается с URL текущей категории
-                        if (strpos($link, $mainCategory['link']) === 0) {
-                            return [
-                                'name' => $node->text(),
-                                'link' => $baseUrl . $link // Добавляем базовый URL к ссылке
-                            ];
-                        }
-                    }
-                    return null; // Возвращаем null, если элемент не найден или не относится к категории
-                });
-
-
-                // Удаляем null значения и переиндексируем массив
-                $subCategories = array_values(array_filter($subCategories));
-
-                //--------------------------------------
-                // foreach ($subCategories as &$subCategory) {
-                //     return
-                //     // Получаем HTML-контент для каждой подкатегории
-                //     $subCategoryResponse = $client->get($subCategory['link']);
-                //     $subCategoryHtml = $subCategoryResponse->getBody()->getContents();
-                //     $subCategoryCrawler = new Crawler($subCategoryHtml);
-
-                //     // Получаем курсы для текущей подкатегории
-                //     // $courses = $this->getCourses($subCategoryCrawler, $baseUrl);
-
-                //     // Удаляем null значения и переиндексируем массив
-                //     // $courses = array_values(array_filter($courses));
-
-                //     // Добавляем курсы в текущую подкатегорию
-                //     $subCategory['courses'] = null;
-                // }
-
-
-
-
-                // Добавляем категорию с подкатегориями в результат
-                $result[] = [
-                    'category' => $mainCategory['name'],
-                    'subcategories' => $subCategories
-                ];
-            } catch (\Exception $e) {
-                // Логируем ошибку, если страница недоступна
-                $result[] = [
-                    'category' => $mainCategory['name'],
-                    'error' => 'Ошибка при загрузке страницы: ' . $e->getMessage()
-                ];
-            }
-        }
-
-        // Возвращаем результат в виде JSON
-        return response()->json($result);
-    }
-
+/**
+ * Получает данные о курсах из указанного URL.
+ *
+ * @param Crawler $crawler
+ * @return Array $node
+ */
     function getCourses($crawler)
     {
 
@@ -326,8 +232,33 @@ echo 'school is saved';
     return $node;
     }
 
+    public function parseHtmlSchool(){
+        $category = Category::find(1);
+        $subcategories = Subcategory::where('category_id', $category->id)->get();
+        $courses = Course::whereIn('subcategory_id', $subcategories->pluck('id'))->get();
+
+//         $category = Category::find(1);
+// $courses = $category->subcategories()->with('courses')->get()->pluck('courses')->flatten();
 
 
+        $result=[];
+
+        foreach ($courses as $course) {
+            $moreLink = $course['link-more'];
+
+            $crawler = $this-> getCrawler($moreLink);
+
+            $schoolLink = $crawler->filter('.l-course__owner-wrapper a')->first()->attr('href');
+
+            $result[]= [
+                'course_id' => $course['id'],
+              'link-more'=>  $course['link-more'],
+                'schoolLink' => self::BASE_URL.$schoolLink];
+        }
+
+         // Возвращаем результат в виде JSON
+         return response()->json($result);
+    }
 
     function getMore($link)
     {
