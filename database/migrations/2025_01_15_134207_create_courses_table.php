@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('subcategory_id')->constrained()->onDelete('cascade');
             $table->foreignId('school_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->text('description'); // Изменено на text
-            $table->decimal('price', 10, 2); // Изменено на decimal с 2 знаками после запятой
-            $table->string('link');
-            $table->string('link-more');
+            $table->text('description')->nullable(); ;
+            $table->decimal('price', 10, 2);
+            $table->string('link')->nullable(); ;
+            $table->string('link-more')->nullable(); ;
             $table->timestamps();
         });
     }
