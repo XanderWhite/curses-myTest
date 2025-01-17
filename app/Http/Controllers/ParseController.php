@@ -226,7 +226,7 @@ class ParseController extends Controller
 
             $more = self::BASE_URL . array_values(array_filter($more))[0];
 
-                        return [
+            return [
                 'title' => $title,
                 'text' => $text,
                 'price' => $price,
@@ -239,14 +239,14 @@ class ParseController extends Controller
     }
 
 
-/**
- * Парсим школы максимум по 200 страниц за раз, но бывают ошибки. Оптимально - 100 шт.
- *
- * @return \Illuminate\Http\JsonResponse
- */
+    /**
+     * Парсим школы максимум по 200 страниц за раз, но бывают ошибки. Оптимально - 100 шт.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function parseHtmlSchool()
     {
-        $courses = Course::whereBetween('id', [1,100 ])->get();
+        $courses = Course::whereBetween('id', [1, 100])->get();
         $result = [];
 
         $urls = [];
@@ -293,11 +293,11 @@ class ParseController extends Controller
     }
 
     /**
- * Извлекает данные  из нескольких URL одновременно. Это позволяет значительно сократить время, необходимое для получения данных по сравнению с последовательным выполнением запросов.
- *
- * @param array $urls Массив URL для извлечения данных.
- * @return array Массив с данными, полученными из URL.
- */
+     * Извлекает данные  из нескольких URL одновременно. Это позволяет значительно сократить время, необходимое для получения данных по сравнению с последовательным выполнением запросов.
+     *
+     * @param array $urls Массив URL для извлечения данных.
+     * @return array Массив с данными, полученными из URL.
+     */
     protected function fetchMultipleData(array $urls)
     {
         $multiHandle = curl_multi_init();
@@ -327,5 +327,85 @@ class ParseController extends Controller
 
         curl_multi_close($multiHandle);
         return $responses;
+    }
+
+
+
+    /**
+     * Переносит путь к школе из названия в link.
+     *
+     * Обновляет записи в таблице schools, перенеся значение из столбца name в столбец link.
+     */
+    function setSchoolLink()
+    {
+        $schools = School::all();
+
+        foreach ($schools as $school) {
+            $school->link = $school->name;
+            $school->save();
+        }
+    }
+
+    /**
+     * Извлекает и обрабатывает данные школ.
+     *
+     * Получает все записи из таблицы schools, извлекает название школы из HTML-страницы и возвращает результат в виде JSON.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    function parseSchoolsData()
+    {
+        $result = [];
+
+        $schools = School::whereBetween('id', [129, 139])->get();
+        $urls = [];
+
+        foreach ($schools as $school) {
+            $urls[] = $school->link;
+        }
+
+        $responses = $this->fetchMultipleData($urls);
+
+        foreach ($responses as $index => $html) {
+            $crawler = new Crawler($html);
+            $schoolName = $crawler->filter('h1.b-owners-show__title')->text();
+            $schoolDescr = $crawler->filter('div.hidden-blur.show-hide__content')->html();
+
+            $savedSchool = School::where('name', $schoolName)->first();
+
+            if ($savedSchool) {
+
+                $schoolToDelete = School::where('link', $urls[$index])->first();
+
+                // $courses = Course::where('school_id', $schoolToDelete->id)->update(['school_id' => $school->id]);
+
+                $courses = Course::where('school_id', $schoolToDelete->id);
+
+                foreach ($courses as $course) {
+                    $course->school_id = $savedSchool->id;
+                    $course->save();
+
+                    $result[] = [
+                        'deleted school id' => $schoolToDelete->id,
+                        'name' => $schoolToDelete->name,
+                    ];
+
+                    $school = School::find($schoolToDelete->id);
+                    $school->delete();
+                }
+            }
+
+            else{
+                $currentSchool = School::where('link', $urls[$index])->first();
+
+                $currentSchool->name = $schoolName;
+                $currentSchool->description = $schoolDescr;
+                $currentSchool->save();
+            }
+        }
+
+
+        // Возвращаем результат в виде JSON
+        return response()->json($result);
     }
 }

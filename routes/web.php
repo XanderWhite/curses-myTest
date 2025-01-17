@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\ParseController;
 
-Route::get('/parse', [ParseController::class, 'parseHtmlSchool']);
+Route::get('/parse', [ParseController::class, 'parseSchoolsData']);
 
 Route::get('/', function () {
     return view('home');
