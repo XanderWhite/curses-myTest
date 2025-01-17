@@ -11,6 +11,12 @@ use App\Models\Course;
 use App\Models\Subcategory;
 use App\Models\School;
 
+// use GuzzleHttp\Client;
+// use GuzzleHttp\Promise;
+// use GuzzleHttp\Client;
+// use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Promise;
+
 class ParseController extends Controller
 {
     // Базовый URL
@@ -35,6 +41,7 @@ class ParseController extends Controller
             throw new \RuntimeException("Не удалось получить данные с URL: {$url}. Ошибка: " . $e->getMessage());
         }
     }
+
 
     public function parseHtmlCategoriesSubcategories()
     {
@@ -112,16 +119,17 @@ class ParseController extends Controller
         return response()->json($result);
     }
 
-     /**
+    /**
      * Добавление первой школы для заглушки в курсах
      */
-    public function insertFirstSchool(){
-$school = new School();
-$school->name = 'Яндекс Практикум';
-$school->description = '<p>Яндекс Практикум — сервис онлайн-обучения, где каждый может освоить цифровую профессию с нуля или получить новые навыки для дальнейшего профессионального развития.</p>';
-$school->link = 'https://practicum.yandex.ru/';
-$school->save();
-echo 'school is saved';
+    public function insertFirstSchool()
+    {
+        $school = new School();
+        $school->name = 'Яндекс Практикум';
+        $school->description = '<p>Яндекс Практикум — сервис онлайн-обучения, где каждый может освоить цифровую профессию с нуля или получить новые навыки для дальнейшего профессионального развития.</p>';
+        $school->link = 'https://practicum.yandex.ru/';
+        $school->save();
+        echo 'school is saved';
     }
 
     public function parseHtmlSubcategoriesCourses()
@@ -187,101 +195,137 @@ echo 'school is saved';
     }
 
 
-/**
- * Получает данные о курсах из указанного URL.
- *
- * @param Crawler $crawler
- * @return Array $node
- */
+    /**
+     * Получает данные о курсах из указанного URL.
+     *
+     * @param Crawler $crawler
+     * @return Array $node
+     */
     function getCourses($crawler)
     {
 
         $courses = $crawler->filter('.l-course.b-bordered.b-courses__course');
         // $node = $courses->eq(0);
-        $node = $courses->each(function (Crawler $node)  {
+        $node = $courses->each(function (Crawler $node) {
 
-        $title = $node->filter('.b-title__course')->text();
+            $title = $node->filter('.b-title__course')->text();
 
-        $text = $node->filter('.l-course__description')->text();
+            $text = $node->filter('.l-course__description')->text();
 
-        $price = $node->filter('.b-title__custom.l-course__price span')->text();
-        $price = str_replace([' ', '&nbsp;', '₽'], '', htmlentities($price)); // Удаляем пробелы, &nbsp; и ₽
-        $price = (int) $price; // Преобразуем в число
-        $link = $node->filter('.l-course__description')->attr('href');
+            $price = $node->filter('.b-title__custom.l-course__price span')->text();
+            $price = str_replace([' ', '&nbsp;', '₽'], '', htmlentities($price)); // Удаляем пробелы, &nbsp; и ₽
+            $price = (int) $price; // Преобразуем в число
+            $link = $node->filter('.l-course__description')->attr('href');
 
-        $more = $node->filter('a.b-btn.b-btn--outline.l-course__btn')->each(function (Crawler $node) {
-            if (stripos($node->text(), 'Подробнее') !== false) {
-                return $node->attr('href'); // Возвращаем только href
-            }
-            return null; // Возвращаем null, если текст не соответствует
+            $more = $node->filter('a.b-btn.b-btn--outline.l-course__btn')->each(function (Crawler $node) {
+                if (stripos($node->text(), 'Подробнее') !== false) {
+                    return $node->attr('href'); // Возвращаем только href
+                }
+                return null; // Возвращаем null, если текст не соответствует
+            });
+
+            $more = self::BASE_URL . array_values(array_filter($more))[0];
+
+                        return [
+                'title' => $title,
+                'text' => $text,
+                'price' => $price,
+                'link' => $link,
+                'more' =>   $more
+            ];
         });
 
-        $more = self::BASE_URL . array_values(array_filter($more))[0];
-
-        // $more = $this->getMore($more);
-
-        return [
-            'title' => $title,
-            'text' => $text,
-            'price' => $price,
-            'link' => $link,
-            'more' =>   $more
-        ];
-    });
-
-    return $node;
+        return $node;
     }
 
-    public function parseHtmlSchool(){
-        $category = Category::find(1);
-        $subcategories = Subcategory::where('category_id', $category->id)->get();
-        $courses = Course::whereIn('subcategory_id', $subcategories->pluck('id'))->get();
 
-//         $category = Category::find(1);
-// $courses = $category->subcategories()->with('courses')->get()->pluck('courses')->flatten();
+/**
+ * Парсим школы максимум по 200 страниц за раз, но бывают ошибки. Оптимально - 100 шт.
+ *
+ * @return \Illuminate\Http\JsonResponse
+ */
+    public function parseHtmlSchool()
+    {
+        $courses = Course::whereBetween('id', [1,100 ])->get();
+        $result = [];
 
-
-        $result=[];
-
+        $urls = [];
         foreach ($courses as $course) {
-            $moreLink = $course['link-more'];
-
-            $crawler = $this-> getCrawler($moreLink);
-
-            $schoolLink = $crawler->filter('.l-course__owner-wrapper a')->first()->attr('href');
-
-            $result[]= [
-                'course_id' => $course['id'],
-              'link-more'=>  $course['link-more'],
-                'schoolLink' => self::BASE_URL.$schoolLink];
+            $urls[] = $course['link-more'];
         }
 
-         // Возвращаем результат в виде JSON
-         return response()->json($result);
+        // Получаем данные асинхронно
+        $responses = $this->fetchMultipleData($urls);
+
+        foreach ($responses as $index => $html) {
+            if ($html) {
+                $crawler = new Crawler($html);
+                $schoolLink = $crawler->filter('.l-course__owner-wrapper a')->first()->attr('href');
+
+                $result[] = [
+                    'course_id' => $courses[$index]['id'],
+                    'link-more' => $courses[$index]['link-more'],
+                    'schoolLink' => self::BASE_URL . $schoolLink
+                ];
+
+                foreach ($result as $res) {
+                    $school = School::where('name', $res['schoolLink'])->first();
+                    if (!$school) {
+                        $school = new School();
+                        $school->name = $res['schoolLink'];
+                        $school->description = '';
+                        $school->link = '';
+                        $school->save();
+                    }
+                    $course = Course::find($res['course_id']);
+                    $course->school_id = $school->id;
+                    $course->save();
+                }
+
+                $crawler->clear(); // Освобождаем ресурсы
+            }
+        }
+
+
+
+        // Возвращаем результат в виде JSON
+        return response()->json($result);
     }
 
-    function getMore($link)
+    /**
+ * Извлекает данные  из нескольких URL одновременно. Это позволяет значительно сократить время, необходимое для получения данных по сравнению с последовательным выполнением запросов.
+ *
+ * @param array $urls Массив URL для извлечения данных.
+ * @return array Массив с данными, полученными из URL.
+ */
+    protected function fetchMultipleData(array $urls)
     {
-        $client = new Client();
+        $multiHandle = curl_multi_init();
+        $curlHandles = [];
+        $responses = [];
 
-        $courseResponse = $client->get($link);
-        $courseHtml = $courseResponse->getBody()->getContents();
-        $crawler = new Crawler($courseHtml);
+        // Инициализация cURL для каждого URL
+        foreach ($urls as $url) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_multi_add_handle($multiHandle, $ch);
+            $curlHandles[] = $ch;
+        }
 
+        // Выполнение всех запросов
+        $running = null;
+        do {
+            curl_multi_exec($multiHandle, $running);
+        } while ($running > 0);
 
-        $info = $crawler->filter('.l-course__owner-wrapper a')->each(function (Crawler $node) {
+        // Получение ответов
+        foreach ($curlHandles as $ch) {
+            $responses[] = curl_multi_getcontent($ch);
+            curl_multi_remove_handle($multiHandle, $ch);
+            curl_close($ch);
+        }
 
-            return $node->attr('href'); // Возвращаем только href
-
-        });
-
-        $info = array_values(array_filter($info))[0];
-
-
-
-        return [
-            'moreLink' => $link,
-            'info' => $info
-        ];
+        curl_multi_close($multiHandle);
+        return $responses;
     }
 }
