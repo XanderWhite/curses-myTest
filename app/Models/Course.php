@@ -27,4 +27,9 @@ class Course extends Model
     {
         return $this->belongsTo(School::class);
     }
+
+    public function reviews()
+    {
+        return $this->belongsToMany(Review::class, 'review_school');
+    }
 }

@@ -18,4 +18,9 @@ class School extends Model
     {
         return $this->hasMany(Course::class);
     }
+
+    public function reviews()
+    {
+        return $this->belongsToMany(Review::class, 'review_school');
+    }
 }
