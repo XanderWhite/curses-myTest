@@ -20,9 +20,9 @@ return new class extends Migration
 
         // Добавляем роли по умолчанию
         $roles = [
-            ['name' => 'user'],
-            ['name' => 'moderator'],
             ['name' => 'admin'],
+            ['name' => 'moderator'],
+            ['name' => 'user'],
             ['name' => 'school_representative'],
         ];
 

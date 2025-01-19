@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Jobs\HashPasswordJob;
 
 class DataTransferController extends Controller
 {
@@ -35,6 +36,68 @@ class DataTransferController extends Controller
 
         return response()->json([ DB::table('users')->count()], 201);
 
- 
+
+    }
+
+    public function hashPassword()
+    {
+        // Получаем все записи из temp_reviews
+        $users = User::all();
+
+        // foreach ($users as $user) {
+
+        //     $user->password = Hash::make($user->password);
+
+        //     $user->save();
+
+        // }
+
+        // foreach ($users as $user) {
+        //     DB::table('users')
+        //         ->where('id', $user->id)
+        //         ->update(['password' => Hash::make($user->password)]);
+        // }
+
+        // Получаем все записи из temp_reviews
+    $users = User::all();
+
+    // Создаем задачу для каждого пользователя
+    foreach ($users as $user) {
+        HashPasswordJob::dispatch($user);
+    }
+
+        return response()->json([ 'ok'], 201);
+
+
+    }
+}
+
+
+
+namespace App\Jobs;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
+class HashPasswordJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $user;
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    public function handle()
+    {
+        $this->user->password = Hash::make($this->user->password);
+        $this->user->save();
     }
 }

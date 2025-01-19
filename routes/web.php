@@ -11,7 +11,7 @@ use App\Http\Controllers\ParseController;
 use App\Http\Controllers\DataTransferController;
 
 // Route::get('/parse', [ParseController::class, 'parseSchoolsData']);
-Route::get('/transfer', [DataTransferController::class, 'transferData']);
+Route::get('/transfer', [DataTransferController::class, 'hashPassword']);
 
 Route::get('/', function () {
     return view('home');
