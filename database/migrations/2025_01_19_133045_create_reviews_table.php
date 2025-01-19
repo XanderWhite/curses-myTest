@@ -18,7 +18,11 @@ return new class extends Migration
             $table->integer('rating')->nullable();
             $table->timestamps();
             $table->boolean('is_approved')->default(false);  // Булево поле со значением по умолчанию false
-            $table->foreignId('id_user')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+
+            // Указываем кодировку и collation для всей таблицы
+            $table->charset = 'utf8mb4';
+            $table->collation = 'utf8mb4_general_ci';
         });
     }
 
