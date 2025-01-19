@@ -20,7 +20,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar'
+        'avatar',
+        'role_id' // Добавлено для явного указания на поле role_id
     ];
 
     /**
@@ -45,4 +46,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+     // Метод для связи с моделью Role
+     public function role()
+     {
+         return $this->belongsTo(Role::class); // Один пользователь принадлежит одной роли
+     }
 }

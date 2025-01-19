@@ -8,8 +8,10 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\ParseController;
+use App\Http\Controllers\DataTransferController;
 
-Route::get('/parse', [ParseController::class, 'parseSchoolsData']);
+// Route::get('/parse', [ParseController::class, 'parseSchoolsData']);
+Route::get('/transfer', [DataTransferController::class, 'transferData']);
 
 Route::get('/', function () {
     return view('home');
