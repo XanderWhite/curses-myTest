@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->text('text')->nullable();
-            // $table->date('date')->nullable();
             $table->integer('rating')->nullable();
             $table->timestamps();
             $table->boolean('is_approved')->default(false);  // Булево поле со значением по умолчанию false
-            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            // $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id'); // Внешний ключ без ограничения
 
             // Указываем кодировку и collation для всей таблицы
             $table->charset = 'utf8mb4';

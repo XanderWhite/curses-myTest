@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subcategory_id')->constrained()->onDelete('cascade');
-            $table->foreignId('school_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('subcategory_id'); // Внешний ключ без ограничения
+            $table->unsignedBigInteger('school_id'); // Внешний ключ без ограничения
+            // $table->foreignId('subcategory_id')->constrained()->onDelete('cascade');
+            // $table->foreignId('school_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);

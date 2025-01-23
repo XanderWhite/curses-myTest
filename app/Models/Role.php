@@ -13,6 +13,8 @@ class Role extends Model
         'name'
     ];
 
+    public $timestamps = false; // Отключаем timestamps
+
     public function users()
     {
         return $this->belongsToMany(User::class);
