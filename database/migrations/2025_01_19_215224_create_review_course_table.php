@@ -16,13 +16,13 @@ return new class extends Migration
              $table->foreignId('review_id')
              ->constrained('reviews')  // Ссылается на таблицу reviews
              ->onUpdate('cascade')
-             ->onDelete('cascade');    // Каскадное удаление
+             ->onDelete('cascade');   
 
        // Внешний ключ для таблицы courses
        $table->foreignId('course_id')
              ->constrained('courses')  // Ссылается на таблицу schools
              ->onUpdate('cascade')
-             ->onDelete('cascade');    // Каскадное удаление
+             ->onDelete('cascade');
 
        // Уникальный составной ключ (чтобы избежать дублирования связей)
        $table->unique(['review_id', 'course_id']);

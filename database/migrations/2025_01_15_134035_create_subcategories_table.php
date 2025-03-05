@@ -16,7 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             // $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('link');
+            $table->string('url');
+            $table->string('link')->nullable();;
             // $table->timestamps();
         });
     }

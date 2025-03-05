@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('schools', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->text('description')->nullable();
-            $table->string('link')->nullable(); 
+            $table->text('description');//->nullable();
+            $table->string('url')->unique('url');
+            $table->string('link')->nullable();
+            $table->string('link_to_school')->nullable();
             $table->timestamps();
         });
     }

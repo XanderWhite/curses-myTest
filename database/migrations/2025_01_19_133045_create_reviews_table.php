@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('text')->nullable();
             $table->integer('rating')->nullable();
             $table->timestamps();
-            $table->boolean('is_approved')->default(false);  // Булево поле со значением по умолчанию false
+            $table->boolean('is_approved')->default(false);  
             // $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedBigInteger('user_id'); // Внешний ключ без ограничения
 

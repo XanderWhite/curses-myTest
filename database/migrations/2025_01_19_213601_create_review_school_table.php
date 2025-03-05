@@ -14,13 +14,13 @@ class CreateReviewSchoolTable extends Migration
             $table->foreignId('review_id')
                   ->constrained('reviews')  // Ссылается на таблицу reviews
                   ->onUpdate('cascade')
-                  ->onDelete('cascade');    // Каскадное удаление
+                  ->onDelete('cascade');
 
             // Внешний ключ для таблицы schools
             $table->foreignId('school_id')
                   ->constrained('schools')  // Ссылается на таблицу schools
                   ->onUpdate('cascade')
-                  ->onDelete('cascade');    // Каскадное удаление
+                  ->onDelete('cascade');   
 
             // Уникальный составной ключ (чтобы избежать дублирования связей)
             $table->unique(['review_id', 'school_id']);

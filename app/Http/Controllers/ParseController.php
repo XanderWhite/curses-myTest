@@ -23,7 +23,7 @@ class ParseController extends Controller
     protected const BASE_URL = 'https://obrazoval.ru';
 
     /**
-     * Получает объект Crawler для указанного URL.
+     * Получаем объект Crawler для указанного URL.
      *
      * @param string $url
      * @return Crawler
